@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { main } from '../../constants'
 
@@ -22,7 +23,7 @@ function MainMenu() {
     <MainMenuStyled>
       {Object.values(main).map(({ path, label }) => (
         <li key={path}>
-          <a href={path}>{label}</a>
+          <Link to={path}>{label}</Link>
         </li>
       ))}
     </MainMenuStyled>

@@ -1,48 +1,70 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Button } from '../atoms'
+import { useDispatch, useSelector } from 'react-redux'
+import { Button, Text } from '../atoms'
 import { HouseCard } from '../molecules'
-import { useFetch } from '../../hooks'
 import { FlexBox, Grid } from '../../styles'
-import { urls } from '../../constants'
+import { getHouses } from '../../store/houses.slice'
 
 const HousesStyled = styled(FlexBox)``
 
 function Houses() {
-  const [houses, setHouses] = useState([])
+  const itemsPerPage = 9
   const [currentPage, setCurrentPage] = useState(1)
-  const { data, loading, isError, isSuccess } = useFetch(urls.houses)
+
+  const dispatch = useDispatch()
+  const houses = useSelector((state) => state.houses.houses)
+  const { byId, allIds, byCity, byType, activeCity, activeType } = houses
+  const reqStatus = useSelector((state) => state.houses.reqStatus)
+
+  let housesArr = []
+  if (reqStatus === 'success') {
+    housesArr = allIds
+    if (activeCity)
+      if (activeType)
+        housesArr = byCity[activeCity].filter((id) =>
+          byType[activeType].includes(id),
+        )
+      else housesArr = byCity[activeCity]
+    else if (activeType) housesArr = byType[activeType]
+  }
+  const housesArrPage = housesArr.slice(0, itemsPerPage * currentPage)
 
   useEffect(() => {
-    if (!data) return
-    setHouses(data)
-  }, [data])
+    dispatch(getHouses())
+  }, [dispatch])
 
   return (
     <HousesStyled>
-      {loading && <div>Loading...</div>}
-      {isError && <div>Error</div>}
-      {isSuccess && (
+      {reqStatus === 'initial' && <Text>Starting ...</Text>}
+      {reqStatus === 'loading' && <Text>Loading ...</Text>}
+      {reqStatus === 'failed' && <Text>Error!</Text>}
+      {reqStatus === 'success' && housesArrPage.length === 0 && (
+        <Text>No hay coincidencias</Text>
+      )}
+      {reqStatus === 'success' && housesArrPage.length > 0 && (
         <Grid gridGap="32px">
-          {houses.map((house) => (
+          {housesArrPage.map((id) => (
             <HouseCard
-              key={house.id}
-              title={house.title}
-              price={`${house.price}€`}
-              img={house.image}
+              key={id}
+              title={byId[id].title}
+              price={`${byId[id].price}€`}
+              img={byId[id].image}
               link=""
             />
           ))}
         </Grid>
       )}
-      <FlexBox align="center">
-        <Button
-          style={{ marginTop: '2rem' }}
-          onClick={() => setCurrentPage(currentPage + 1)}
-        >
-          Load more
-        </Button>
-      </FlexBox>
+      {housesArrPage.length < housesArr.length && (
+        <FlexBox align="center">
+          <Button
+            style={{ marginTop: '2rem' }}
+            onClick={() => setCurrentPage(currentPage + 1)}
+          >
+            Load more
+          </Button>
+        </FlexBox>
+      )}
     </HousesStyled>
   )
 }
