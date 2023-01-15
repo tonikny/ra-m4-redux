@@ -17,7 +17,9 @@ function Houses() {
   const { byId, allIds, byCity, byType, activeCity, activeType } = houses
   const reqStatus = useSelector((state) => state.houses.reqStatus)
 
-  let housesArr = []
+  // Mapear debajo, no de esta manera
+  // Demasiado complicada la lógica. Si crece a 5 filtro s se pierde el hilo
+  let housesArr = [] // No guardar nada en let de esta maneram no es necesario
   if (reqStatus === 'success') {
     housesArr = allIds
     if (activeCity)
@@ -44,6 +46,9 @@ function Houses() {
       )}
       {reqStatus === 'success' && housesArrPage.length > 0 && (
         <Grid gridGap="32px">
+          {/* Aquí deberías de filtrar y luego mapear sobre allIds => byId[id] */}
+          {/* Crea una función de filtrado en helpers y dentro de esa puedes componer varias, por tipo, ciudad, etc... */}
+
           {housesArrPage.map((id) => (
             <HouseCard
               key={id}

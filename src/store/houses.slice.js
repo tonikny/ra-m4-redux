@@ -8,15 +8,15 @@ export const getHouses = createAsyncThunk('houses/getHouses', async () => {
 })
 
 const initialState = {
-  reqStatus: 'loading',
+  reqStatus: 'loading', // Guardaria un isError, isSuccess, etc... para que sea más fácil de leer y usar. El loading, success ,etc... deberían guardarse en una constante
   houses: {
     byId: {},
     allIds: [],
     types: [],
-    byType: {},
+    byType: {}, // innecesarios
     activeType: null,
     cities: [],
-    byCity: {},
+    byCity: {}, // innecesarios
     activeCity: null,
   },
 }
@@ -25,6 +25,7 @@ export const housesSlice = createSlice({
   name: 'houses',
   initialState,
   reducers: {
+    // por convención y legibilidad, setType y setCity
     updateActiveType(state, action) {
       state.houses.activeType = action.payload
     },
