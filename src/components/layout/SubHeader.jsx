@@ -30,13 +30,15 @@ const FormStyled = styled(FlexBox).attrs({ as: 'form' })`
 
 function SubHeader({ ...props }) {
   const dispatch = useDispatch()
+
+  // const { cities, types, activeCity, activeType } = useSelector( ...
   const houses = useSelector((state) => state.houses.houses)
   const { cities, types, activeCity, activeType } = houses
 
   // Resetear opciones de búsqueda al cargar la página
   useEffect(() => {
-    dispatch(updateActiveCity(null))
-    dispatch(updateActiveType(null))
+    dispatch(updateActiveCity(null)) // Innecesario, dejalo como null al comienzo
+    dispatch(updateActiveType(null)) // Innecesario, dejalo como null al comienzo
   }, [dispatch])
 
   return (
@@ -50,7 +52,7 @@ function SubHeader({ ...props }) {
             selected={activeType}
             hideLabel
             options={types.map((type) => ({ value: type, text: type }))}
-            onChange={(e) => dispatch(updateActiveType(e.target.value))}
+            onChange={(e) => dispatch(updateActiveType(e.target.value))} // setType(...)
           />
 
           <SelectGroup
@@ -60,7 +62,7 @@ function SubHeader({ ...props }) {
             selected={activeCity}
             hideLabel
             options={cities.map((city) => ({ value: city, text: city }))}
-            onChange={(e) => dispatch(updateActiveCity(e.target.value))}
+            onChange={(e) => dispatch(updateActiveCity(e.target.value))} // setCity(...)
           />
 
           <Button>
