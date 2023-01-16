@@ -24,7 +24,7 @@ function SelectGroup({
         name={id}
         onChange={onChange}
         {...rest}
-        defaultValue={defaultValue}
+        value={defaultValue}
       >
         <SelectOption value="" disabled>
           {defaultText}

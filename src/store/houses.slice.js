@@ -8,15 +8,20 @@ export const getHouses = createAsyncThunk('houses/getHouses', async () => {
 })
 
 const initialState = {
-  reqStatus: 'loading',
+  reqStatus: {
+    status: 'initial',
+    isLoading: false,
+    isSuccess: false,
+    isError: false,
+  },
   houses: {
     byId: {},
     allIds: [],
     types: [],
-    byType: {},
+    // byType: {},
     activeType: null,
     cities: [],
-    byCity: {},
+    // byCity: {},
     activeCity: null,
   },
 }
@@ -25,53 +30,50 @@ export const housesSlice = createSlice({
   name: 'houses',
   initialState,
   reducers: {
-    updateActiveType(state, action) {
+    setType(state, action) {
       state.houses.activeType = action.payload
     },
-    updateActiveCity(state, action) {
+    setCity(state, action) {
       state.houses.activeCity = action.payload
     },
   },
   extraReducers: (builder) => {
     builder.addCase(getHouses.pending, (state) => {
-      state.reqStatus = 'initial'
+      state.reqStatus.status = 'loading'
+      state.reqStatus.isError = false
+      state.reqStatus.isLoading = true
+      state.reqStatus.isSuccess = false
     })
     builder.addCase(getHouses.fulfilled, (state, action) => {
-      state.reqStatus = 'success'
+      state.reqStatus.status = 'success'
+      state.reqStatus.isError = false
+      state.reqStatus.isLoading = false
+      state.reqStatus.isSuccess = true
+
       action.payload.forEach((house) => {
         state.houses.byId[house.id] = house
         if (!state.houses.allIds.includes(house.id)) {
           state.houses.allIds.push(house.id)
         }
-        // City
+
         if (!state.houses.cities.includes(house.city)) {
           state.houses.cities.push(house.city)
         }
-        if (!(house.city in state.houses.byCity)) {
-          state.houses.byCity[house.city] = []
-        }
-        if (!state.houses.byCity[house.city].includes(house.id)) {
-          state.houses.byCity[house.city].push(house.id)
-        }
-        // Type
+
         if (!state.houses.types.includes(house.type)) {
           state.houses.types.push(house.type)
-        }
-        if (!(house.type in state.houses.byType)) {
-          state.houses.byType[house.type] = []
-        }
-        if (!state.houses.byType[house.type].includes(house.id)) {
-          state.houses.byType[house.type].push(house.id)
         }
       })
     })
     builder.addCase(getHouses.rejected, (state) => {
-      state.reqStatus = 'failed'
+      state.reqStatus.status = 'failed'
+      state.reqStatus.isError = true
+      state.reqStatus.isLoading = false
+      state.reqStatus.isSuccess = false
     })
   },
 })
 
-// Action creators are generated for each case reducer function
-export const { updateActiveType, updateActiveCity } = housesSlice.actions
+export const { setType, setCity } = housesSlice.actions
 
 export default housesSlice.reducer

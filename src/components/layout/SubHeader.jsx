@@ -1,10 +1,9 @@
-import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { useDispatch, useSelector } from 'react-redux'
 import { colors, Container, dimensions, FlexBox } from '../../styles'
 import { Button, Icon } from '../atoms'
 import { SelectGroup } from '../molecules'
-import { updateActiveType, updateActiveCity } from '../../store/houses.slice'
+import { setType, setCity } from '../../store/houses.slice'
 
 const SubHeaderStyled = styled(FlexBox)`
   padding-top: ${dimensions.spacing.xl};
@@ -30,14 +29,9 @@ const FormStyled = styled(FlexBox).attrs({ as: 'form' })`
 
 function SubHeader({ ...props }) {
   const dispatch = useDispatch()
-  const houses = useSelector((state) => state.houses.houses)
-  const { cities, types, activeCity, activeType } = houses
-
-  // Resetear opciones de búsqueda al cargar la página
-  useEffect(() => {
-    dispatch(updateActiveCity(null))
-    dispatch(updateActiveType(null))
-  }, [dispatch])
+  const { cities, types, activeCity, activeType } = useSelector(
+    (state) => state.houses.houses,
+  )
 
   return (
     <SubHeaderStyled {...props}>
@@ -47,20 +41,20 @@ function SubHeader({ ...props }) {
             id="type"
             label="Tipo"
             defaultText="Piso, chalet o garaje..."
-            selected={activeType}
+            defaultValue={activeType || ''}
             hideLabel
             options={types.map((type) => ({ value: type, text: type }))}
-            onChange={(e) => dispatch(updateActiveType(e.target.value))}
+            onChange={(e) => dispatch(setType(e.target.value))}
           />
 
           <SelectGroup
             id="ciudad"
             label="Ciudad"
             defaultText="Madrid, Barcelona o Zaragoza..."
-            selected={activeCity}
+            defaultValue={activeCity || ''}
             hideLabel
             options={cities.map((city) => ({ value: city, text: city }))}
-            onChange={(e) => dispatch(updateActiveCity(e.target.value))}
+            onChange={(e) => dispatch(setCity(e.target.value))}
           />
 
           <Button>

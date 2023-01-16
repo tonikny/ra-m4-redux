@@ -5,6 +5,7 @@ import { Button, Text } from '../atoms'
 import { HouseCard } from '../molecules'
 import { FlexBox, Grid } from '../../styles'
 import { getHouses } from '../../store/houses.slice'
+import { applyFilters, paginatedIds, isLastPage } from '../../helpers'
 
 const HousesStyled = styled(FlexBox)``
 
@@ -13,22 +14,17 @@ function Houses() {
   const [currentPage, setCurrentPage] = useState(1)
 
   const dispatch = useDispatch()
-  const houses = useSelector((state) => state.houses.houses)
-  const { byId, allIds, byCity, byType, activeCity, activeType } = houses
-  const reqStatus = useSelector((state) => state.houses.reqStatus)
+  const { byId, allIds, activeCity, activeType } = useSelector(
+    (state) => state.houses.houses,
+  )
+  const { isLoading, isError, isSuccess } = useSelector(
+    (state) => state.houses.reqStatus,
+  )
 
-  let housesArr = []
-  if (reqStatus === 'success') {
-    housesArr = allIds
-    if (activeCity)
-      if (activeType)
-        housesArr = byCity[activeCity].filter((id) =>
-          byType[activeType].includes(id),
-        )
-      else housesArr = byCity[activeCity]
-    else if (activeType) housesArr = byType[activeType]
-  }
-  const housesArrPage = housesArr.slice(0, itemsPerPage * currentPage)
+  // filtro aquí para reutilizar el resultado para la paginación
+  const filteredIds = allIds.filter((id) =>
+    applyFilters(byId[id], activeType, activeCity),
+  )
 
   useEffect(() => {
     dispatch(getHouses())
@@ -36,15 +32,14 @@ function Houses() {
 
   return (
     <HousesStyled>
-      {reqStatus === 'initial' && <Text>Starting ...</Text>}
-      {reqStatus === 'loading' && <Text>Loading ...</Text>}
-      {reqStatus === 'failed' && <Text>Error!</Text>}
-      {reqStatus === 'success' && housesArrPage.length === 0 && (
+      {isLoading && <Text>Loading ...</Text>}
+      {isError && <Text>Error!</Text>}
+      {isSuccess && filteredIds.length === 0 && (
         <Text>No hay coincidencias</Text>
       )}
-      {reqStatus === 'success' && housesArrPage.length > 0 && (
+      {isSuccess && allIds.length > 0 && (
         <Grid gridGap="32px">
-          {housesArrPage.map((id) => (
+          {paginatedIds(filteredIds, itemsPerPage, currentPage).map((id) => (
             <HouseCard
               key={id}
               title={byId[id].title}
@@ -55,13 +50,13 @@ function Houses() {
           ))}
         </Grid>
       )}
-      {housesArrPage.length < housesArr.length && (
+      {!isLastPage(filteredIds, itemsPerPage, currentPage) && (
         <FlexBox align="center">
           <Button
             style={{ marginTop: '2rem' }}
             onClick={() => setCurrentPage(currentPage + 1)}
           >
-            Load more
+            Cargar más
           </Button>
         </FlexBox>
       )}
